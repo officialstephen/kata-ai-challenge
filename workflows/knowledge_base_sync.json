@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "templateId": "1839",
+    "instanceId": "f5a2764a27c829bf977927cb2d687bb02d63de08b9e625d36b8c05fd15ce811b"
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "aecce7a8-24f6-48c0-a7f0-f48a421d1d8c",
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        940,
+        -120
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "File",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "efd9f100-c834-42f4-bbfd-91a44681dede",
+      "name": "Default Data Loader1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b7c33207-b1df-4ab1-9e5c-d311f7dbb327",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1660,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *From new_shopwise.products;\nSELECT *From new_shopwise.orders;",
+        "options": {}
+      },
+      "id": "b563198b-2a12-46bc-a61c-a7e99f8a7fd5",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1260,
+        -140
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "ybAdmewyKtGNBmmv",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 50
+      },
+      "id": "5305cb79-d3da-4a7d-9e1c-3538ac862ab5",
+      "name": "Token Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "google",
+          "mode": "list",
+          "cachedResultName": "google"
+        },
+        "options": {
+          "pineconeNamespace": "KATA"
+        }
+      },
+      "id": "e737bb35-a9a9-40f5-86e0-40cb8d1753c3",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        2060,
+        -180
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "IHXsSfDDKIiRTyjp",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-ada-002",
+        "options": {}
+      },
+      "id": "15465693-4669-48cb-bfad-3b8eb976e864",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        2060,
+        40
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QqC0mZu6p1aaqFRO",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

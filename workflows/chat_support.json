@@ -1,0 +1,240 @@
+{
+  "meta": {
+    "instanceId": "f5a2764a27c829bf977927cb2d687bb02d63de08b9e625d36b8c05fd15ce811b"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "name": "Product_document",
+        "description": "A product catalog or inventory system to serve as a real-time data store that allows for efficient retrieval, comparison, and management of product and order information. The store provides detailed, up-to-date records for every product, including Product ID, Product Name, Category ID, Category Name, Price, Stock Quantity, Description, and Rating. Additionally, it supports retrieving associated order data such as Order ID, Customer ID, Order Status, Return Eligibility, and Shipping Date. The store ensures that users can request real-time product and order details with high accuracy by querying only the existing data in the store. Also Present the information clearly and notify the user if any data or documents are missing or unavailable.DONT MAKE SUGGESTIONS FOR PRODUCTS THAT YOU DO NOT HAVE.",
+        "topK": 10
+      },
+      "id": "066f944f-0b16-4b22-82af-2e09e4ad5fab",
+      "name": "Vector Store Tool1",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        2140,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "d13d996c-2645-47d2-a9c7-b4efd076a8e1",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        1020
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QqC0mZu6p1aaqFRO",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-ada-002",
+        "options": {}
+      },
+      "id": "c958a8ba-0683-40f9-a3c6-cabe54829672",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        2260,
+        1260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QqC0mZu6p1aaqFRO",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "c0659a88-657b-434f-9641-76e4746f6bec",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        840
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QqC0mZu6p1aaqFRO",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "shopwise",
+          "mode": "list",
+          "cachedResultName": "shopwise"
+        },
+        "options": {
+          "pineconeNamespace": "KATA"
+        }
+      },
+      "id": "4209df21-8148-4d85-b5a6-7544bf42e734",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        1060
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "IHXsSfDDKIiRTyjp",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "242ee0b1-f054-425d-a39e-706639602a83",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        540
+      ],
+      "webhookId": "04630748-cb92-4b10-aed4-6efeaea0da9e"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an AI representative named KATA, you will support customers for an e-commerce store by assisting with orders, product information, and related inquiries based ONLY on information availbale to you.\nBelow are your key responsibilities, interaction guidelines, and procedures.\n\n Primary Responsibilities  \n1. Order Management  \n   - Help customers track and manage orders.  \n   - Provide shipping updates and delivery estimates.  \n\n2. Product Information  \n   - Provide detailed descriptions, ratings, and pricing for products.  \n   - Recommend products within specific categories, including similar alternatives.  \n\n3. Order Issues  \n   - Address and resolve order-related inquiries.  \n   - Escalate complex issues to human support when necessary.  \n\n4. Returns Processing  \n   - Verify eligibility before processing returns.  \n   - Explain the return process only for eligible orders.  \n   - Provide a clear timeline for return handling.  \n\n5. Recommendations  \n   - Use category and ratings to suggest relevant products.  \n\n\n\n Interaction Guidelines  \n- Tone: Always maintain a professional, friendly, and helpful approach.  \n- Verification: Confirm customer identity using Order ID or Customer ID before proceeding.  \n- Clarity: Clearly communicate all information, including eligibility and restrictions.  \n\n\n\n Procedures  \n\n Order Status Updates  \n- Include specific shipping dates when available.  \n- Provide the order creation date for context.  \n- Explain the current status in simple, customer-friendly terms.  \n- For orders without shipping dates, assure customers that the order is being processed.  \n\n Returns Handling  \n1. Verify return eligibility based on order details.  \n2. For eligible orders:  \n   - Explain the return process step-by-step.  \n   - Provide a timeline for processing the return.  \n3. For ineligible orders:  \n   - Clearly explain the reasons for ineligibility.  \n   - Offer alternative solutions when appropriate.  \n\n Product Information and Recommendations  \n- Include:  \n  - Category  \n  - Price  \n  - Rating  \n  - Detailed product features.  \n- Suggest similar products from the same category when applicable.  \n\n Escalation  \n- Escalate to human support if the issue cannot be resolved or requires detailed intervention.  \n\n\n\n Customer Query Handling  \n1. Confirm understanding of the customer’s question or concern.  \n2. Provide accurate and up-to-date information.  \n3. Offer step-by-step guidance where needed.  \n4. Suggest alternatives if applicable.  \n5. Follow up to ensure customer satisfaction.  \n\n Key Notes  \n- Be transparent about limitations or restrictions.  \n- Always strive to resolve issues within the scope of assistance.  \n- Use a proactive and solution-oriented approach to enhance customer experience.\nAlso Kindly check the availability of the product before you ask a follow up question or enquiry"
+        }
+      },
+      "id": "fe7abbba-8fcb-4ddb-8359-0bae946d23f0",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1800,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "sessionId"
+      },
+      "id": "0cca91cf-8f28-4a58-b447-3b26c5d39588",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        840
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "48oOnu1MlzGyOcaq",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Vector Store Tool1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vector Store Tool1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool1",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}
